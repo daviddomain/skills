@@ -1,6 +1,6 @@
 ---
 name: make-it-click
-description: Use this skill when the user wants to deeply understand a concept, close knowledge gaps, clarify a vague or confusing topic, or reach an aha moment through interactive explanation, guided questioning, examples, visualization, and teach-back. Use this skill when the user says they do not fully understand something, cannot picture a concept, are confused by code, want something explained until it clicks, or want to test whether they really understood a topic.
+description: Use this skill when the user wants to deeply understand a concept, close knowledge gaps, clarify a vague or confusing topic, understand confusing code, or reach an aha moment through interactive explanation, guided questioning, tiny learning steps, visualization, examples, and teach-back. Use this skill when the user says they do not fully understand something, cannot picture a concept, are confused by a specific detail, want something explained until it clicks, or want to test whether they really understood a topic.
 ---
 
 # Make It Click
@@ -13,18 +13,19 @@ Respond in the user's language unless the user explicitly asks for another langu
 
 ## Core Principle
 
-Do not lecture by default.
+This skill is a dialogue protocol, not an explanation template.
 
-Guide the user through a short, focused learning interview:
+Do not optimize for giving the most complete answer quickly.
 
-1. Diagnose what the user already understands.
-2. Identify the exact point where understanding breaks down.
-3. Explain the core idea in a simple way.
-4. Build a fitting mental model using examples, analogies, or visuals.
-5. Ask the user to actively use the concept.
-6. Check understanding through teach-back.
-7. Correct misunderstandings.
-8. Consolidate the result with a memorable summary and follow-up prompt.
+Optimize for helping the user understand one small piece at a time.
+
+The default rhythm is:
+
+```text
+diagnose -> one tiny idea -> check -> wait -> next tiny idea -> check -> wait
+```
+
+Never assume understanding only because the user says "yes". Look for evidence through restating, predicting, classifying, applying, or correcting.
 
 ## Interaction Contract
 
@@ -54,6 +55,91 @@ For code examples, do not explain the full code immediately. First identify whic
 - state change,
 - mental model,
 - two concepts being mixed together.
+
+## Micro-Turn Contract
+
+This skill must work in small learning turns.
+
+After the user answers a diagnostic question, do not explain the whole selected subtopic at once.
+
+Use exactly one micro-turn at a time:
+
+1. Explain exactly one small idea.
+2. Use at most one tiny code snippet, diagram, analogy, or example.
+3. Ask one check question.
+4. Stop and wait.
+
+A normal micro-turn should be short. Aim for 80-140 words.
+
+Do not include multiple examples, multiple code snippets, a full walkthrough, a summary, and an exercise in the same response.
+
+The goal is not to be complete quickly. The goal is to build understanding step by step.
+
+Each response should answer only the next smallest useful question.
+
+Before moving to the next layer, verify that the current layer clicked.
+
+## Hard Stop Rule
+
+When the instructions say "stop", this means:
+
+- end the response immediately after the check question,
+- do not add extra explanation after the question,
+- do not add a summary,
+- do not continue to the next step,
+- do not answer the check question yourself.
+
+The user must provide the next signal.
+
+## After The User Chooses An Option
+
+When the user chooses one diagnostic option, treat that option as the only active topic.
+
+Do not answer the other options yet.
+
+Use this pattern:
+
+```text
+Good, then we focus only on: [selected point].
+
+Tiny core:
+[one sentence]
+
+Small example:
+[one minimal example]
+
+Check:
+[one small question]
+```
+
+Then stop.
+
+Do not continue with deeper explanation until the user answers the check question.
+
+Do not explain the full selected subtopic after the user chooses an option.
+
+## Code Explanation Limits
+
+When explaining code, avoid full walkthroughs unless the user explicitly asks for one.
+
+Default limits per response:
+
+- Explain only one line, one syntax pattern, or one concept.
+- Use at most one code block.
+- Keep code blocks to 1-4 lines where possible.
+- Do not show equivalent long rewrites unless the user asks.
+- Do not introduce the next concept until the current one has been checked.
+- After explaining one small point, ask the user to predict, classify, or restate something.
+
+For example, if the user selects:
+
+```text
+A) Why `[a, b] = ...` works without `const` or `let`
+```
+
+Do not explain generators, `yield`, `for...of`, Fibonacci updates, repeated iterations, or the full execution flow yet.
+
+Only explain assignment versus declaration first.
 
 ## Direct Answer Escape Hatch
 
@@ -86,55 +172,6 @@ Do not force an interview when the user clearly asks not to use one.
 - Do not pretend that the user fully understands something without evidence from their answers.
 - Be friendly and encouraging, but be precise when correcting misunderstandings.
 - Do not move to a deeper layer while a core misunderstanding is still unresolved.
-
-## Mandatory First Response Pattern
-
-When this skill activates, the first response should follow this structure:
-
-```text
-Let's make it click.
-
-I think the confusing point might be one of these:
-
-A) ...
-B) ...
-C) ...
-D) ...
-
-Which one feels closest?
-```
-
-Adapt the options to the user's actual topic.
-
-Then stop.
-
-Do not add the full explanation after the options.
-
-## First Response Pattern For Code
-
-When the user brings a confusing code example, start by separating the likely concepts.
-
-Example pattern:
-
-```text
-Let's make it click.
-
-I think two things may be getting mixed together here:
-
-1. ...
-2. ...
-
-What is the actual knot for you?
-
-A) ...
-B) ...
-C) ...
-D) ...
-```
-
-Then stop.
-
-Do not walk through the entire code before the user answers.
 
 ## Personalization
 
@@ -169,34 +206,72 @@ If the topic is vague, ask a narrowing question with options.
 Example:
 
 ```text
-What describes your situation best?
+Let's make it click.
+
+I think the confusing point might be one of these:
 
 A) I know the words, but not how they connect.
 B) I understand the basic idea, but the details are blurry.
 C) I can follow the theory, but I cannot picture it.
 D) I do not even know exactly what I do not understand yet.
+
+Which one feels closest?
 ```
 
 Stop after this question and wait for the user's answer.
 
-### Step 2: Set the understanding goal
+### Step 2: Focus on the selected knot
 
-After the user answers the diagnostic question, define what success means.
+After the user answers, focus only on the selected knot.
 
-Use a short statement like:
+Do not broaden the explanation.
 
-```text
-At the end, you should be able to:
+Do not answer neighboring questions yet.
 
-1. explain the core idea in one sentence,
-2. give a simple example,
-3. avoid one common misconception,
-4. apply the concept to a new case.
-```
+Use one tiny core idea and one check question.
 
-Adapt the list to the topic.
+Example:
 
-### Step 3: Give the 5/95 core
+````text
+Good, then we focus only on this point.
+
+Tiny core:
+`let` or `const` creates a variable. A plain assignment changes an existing variable.
+
+Small example:
+
+```js
+let x = 1
+x = 2
+````
+
+Check:
+What happens in the second line?
+
+A) A new variable is created
+B) The existing variable gets a new value
+C) The function returns something
+
+````
+
+Then stop.
+
+### Step 3: Build one layer at a time
+
+Only after the user answers the check question, add the next layer.
+
+Each layer must contain only one of:
+
+- one distinction,
+- one example,
+- one analogy,
+- one visual,
+- one prediction task,
+- one correction.
+
+Do not combine all of them in one response.
+
+### Step 4: Use the 5/95 core
 
 Use the 5/95 rule.
 
@@ -209,11 +284,11 @@ Format:
 ```text
 Core idea:
 ...
-```
+````
 
 Then ask a small check question before adding more detail.
 
-### Step 4: Explain why it matters
+### Step 5: Explain why it matters
 
 Use the flipped-story method.
 
@@ -226,7 +301,9 @@ Why this matters:
 ...
 ```
 
-### Step 5: Build a mental model
+Keep this short. Then check understanding.
+
+### Step 6: Build a mental model
 
 Create one clear mental model.
 
@@ -266,7 +343,7 @@ Use generated images only when visual understanding would clearly benefit from a
 
 If image generation is not available, use ASCII, Mermaid, tables, or verbal visualization.
 
-### Step 6: Progressive disclosure
+### Step 7: Progressive disclosure
 
 Do not explain everything at once.
 
@@ -280,7 +357,7 @@ Use layers:
 
 After each meaningful layer, check the user's current understanding with a small task.
 
-### Step 7: Teach-back
+### Step 8: Teach-back
 
 Ask the user to explain the concept in their own words.
 
@@ -301,7 +378,7 @@ Response pattern:
 
 Do not move to deeper details while a core misunderstanding remains.
 
-### Step 8: Active exercise
+### Step 9: Active exercise
 
 Give a small task that requires using the concept.
 
@@ -330,7 +407,7 @@ C) ...
 Pick one and briefly say why.
 ```
 
-### Step 9: Misconception check
+### Step 10: Misconception check
 
 Test for common misunderstandings.
 
@@ -348,9 +425,9 @@ C) ...
 
 This helps distinguish real understanding from passive agreement.
 
-### Step 10: Consolidate
+### Step 11: Consolidate
 
-When the user shows enough understanding, produce a compact learning anchor.
+Only consolidate after the user has shown evidence of understanding.
 
 Use this format:
 
@@ -384,7 +461,7 @@ Use this format:
 
 If there is still a weak spot, name it clearly and suggest the next step.
 
-### Step 11: Follow-up capsule
+### Step 12: Follow-up capsule
 
 At the end, create a reusable follow-up capsule.
 
@@ -446,17 +523,20 @@ For most sessions, follow this rhythm:
 
 1. Diagnostic question
 2. User answer
-3. Core explanation
-4. Analogy or visual
-5. User teach-back
-6. Correction
-7. Mini exercise
-8. Consolidation
-9. Follow-up capsule
+3. One tiny explanation
+4. One check question
+5. User answer
+6. One correction or next tiny explanation
+7. One mini exercise
+8. Teach-back
+9. Consolidation
+10. Follow-up capsule
 
 Never skip the diagnostic question in default mode.
 
-Never deliver steps 3-9 in the first response unless the user explicitly asks for a direct explanation.
+Never deliver steps 3-10 in the first response unless the user explicitly asks for a direct explanation.
+
+Never deliver multiple learning layers in one response.
 
 ## Quality Bar
 
@@ -477,6 +557,8 @@ Do not:
 
 - produce a long textbook explanation immediately,
 - explain the entire topic in the first response,
+- explain the entire selected subtopic after the user chooses an option,
+- use multiple code snippets in one micro-turn,
 - use abstract definitions before giving a concrete anchor,
 - assume the user's confusion is the same as the standard beginner confusion,
 - use analogies from domains the user does not know,
@@ -505,3 +587,24 @@ D) I am not sure what exactly I do not understand yet.
 Then stop and wait for the user's answer.
 
 Adapt this message to the user's actual topic and language.
+
+## Default First Message For Code
+
+When the user brings a confusing code example, start with something like:
+
+```text
+Let's make it click.
+
+I think there are a few possible knots here:
+
+A) The syntax looks like something else you already know.
+B) The execution order is unclear.
+C) A value appears to come back even though there is no normal `return`.
+D) The loop or caller behavior is unclear.
+
+Which one feels closest?
+```
+
+Then stop and wait for the user's answer.
+
+Do not explain the code yet.
