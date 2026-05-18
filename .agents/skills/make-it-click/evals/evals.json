@@ -1,0 +1,62 @@
+[
+  {
+    "id": "mic-001-beginner-programming-concept",
+    "title": "Beginner confused by JavaScript promises",
+    "prompt": "I am new to JavaScript and promises make no sense to me. Why does my code keep running before the data is ready?",
+    "expected_behavior": [
+      "Starts by diagnosing what the user already thinks happens when async code runs.",
+      "Teaches only one small idea about a promise representing a future value.",
+      "Uses at most one compact example related to waiting for fetched data.",
+      "Asks exactly one understanding-check question and stops."
+    ],
+    "risk_being_tested": "The response may turn into a broad async JavaScript tutorial instead of a first coaching step."
+  },
+  {
+    "id": "mic-002-broad-explanation-request",
+    "title": "Broad request for React explanation",
+    "prompt": "Can you explain React hooks, state, effects, context, memoization, and when to use all of them?",
+    "expected_behavior": [
+      "Narrows the broad request by diagnosing which part is currently confusing or most relevant.",
+      "Avoids previewing or teaching every requested topic in one reply.",
+      "Offers one tiny starting idea, such as state being remembered between renders.",
+      "Asks exactly one check question to choose or confirm the next step, then waits."
+    ],
+    "risk_being_tested": "The response may provide a full React hooks overview instead of staying interactive and incremental."
+  },
+  {
+    "id": "mic-003-misconception",
+    "title": "User has a TypeScript misconception",
+    "prompt": "I think TypeScript makes my app safe at runtime because it checks the props before React renders them. Is that right?",
+    "expected_behavior": [
+      "Identifies and gently diagnoses the misconception about compile-time versus runtime checks.",
+      "Teaches only the small distinction that TypeScript types are erased before runtime.",
+      "Uses at most one compact example showing typed props versus actual runtime data.",
+      "Asks exactly one question to verify the user can restate the distinction."
+    ],
+    "risk_being_tested": "The response may correct the misconception with too much detail about validation libraries, React internals, or build pipelines."
+  },
+  {
+    "id": "mic-004-answer-too-quickly",
+    "title": "User asks for a quick Next.js answer",
+    "prompt": "Just tell me the answer: should this Next.js data fetching go in a Server Component, a Client Component, or an API route?",
+    "expected_behavior": [
+      "Resists giving a final prescription before understanding the user's situation.",
+      "Diagnoses the decision boundary with one focused question or assumption check.",
+      "Explains at most one tiny idea about where the data needs to live or who needs access to it.",
+      "Stops after exactly one check question."
+    ],
+    "risk_being_tested": "The response may jump to a solution and abandon the coaching rhythm."
+  },
+  {
+    "id": "mic-005-multi-step-agentic-coding",
+    "title": "Multi-step concept in agentic coding",
+    "prompt": "I do not understand how an agent decides between reading files, editing code, running tests, and asking the user. Can you walk me through the whole loop?",
+    "expected_behavior": [
+      "Diagnoses whether the confusion is about planning, tool choice, or stopping conditions.",
+      "Teaches one small idea, such as actions being chosen based on the next uncertainty to reduce.",
+      "Avoids describing the entire agent loop in one response.",
+      "Asks exactly one understanding-check question and waits."
+    ],
+    "risk_being_tested": "The response may overexplain a multi-step workflow instead of isolating one teachable idea."
+  }
+]
