@@ -131,3 +131,105 @@ This would preserve flexibility for summaries while preventing the skill from sl
 Pass.
 
 The current `make-it-click` skill behavior is strong for this eval case. No immediate SKILL.md change is required based on this single run, but the summary/cheat-sheet behavior should be watched in future evals.
+
+---
+
+## Test Run: mic-002-broad-explanation-request
+
+### Date
+
+2026-05-18
+
+### Skill Version
+
+v3.2 baseline
+
+### Codex Version / Environment
+
+Not recorded.
+
+### Eval Case ID
+
+`mic-002-broad-explanation-request`
+
+### Prompt Used
+
+```txt
+Can you explain React hooks, state, effects, context, memoization, and when to use all of them?
+```
+
+### Observed Behavior
+
+The skill handled the broad explanation request well at the beginning.
+
+Instead of immediately dumping a full React hooks tutorial, it identified the likely confusion as a relationship problem between `state`, `effects`, `context` and `memoization`. It then asked a diagnostic multiple-choice question and let the user choose a narrower goal.
+
+After the user selected the practical decision-guide path, the skill provided a compact overview table and then proceeded in small interactive steps:
+
+1. `useState` for local remembered UI data.
+2. `useEffect` for syncing with outside React.
+3. `useContext` for shared values from a provider.
+4. `useMemo` for cached calculated values.
+5. `useCallback` for stable function references.
+6. Derived data vs source data.
+7. `useReducer` for event-like state transitions.
+8. `useRef` for values that should persist without causing renders.
+
+The strongest behavior was the repeated use of small checks and teach-back prompts. The skill corrected misconceptions gently, especially around `useMemo` not directly preventing re-renders and around derived values such as `isEmpty`.
+
+The main weakness: the session gradually expanded beyond the original scope. `useReducer` and `useRef` were introduced even though the prompt did not explicitly ask for them. This was still useful, but it made the run feel more like a guided mini-course than a strict micro-turn coaching session.
+
+The final “What Clicked”, “Practical Default” and “Follow-Up Capsule” were helpful and captured a useful mental model. However, the summary became fairly broad and covered more concepts than the initial eval case required.
+
+### Score Summary
+
+| Criterion                               | Score | Notes                                                                                                 |
+| --------------------------------------- | ----: | ----------------------------------------------------------------------------------------------------- |
+| Diagnosis first                         |     2 | Started with a useful hypothesis and diagnostic options instead of explaining everything immediately. |
+| One tiny idea per reply                 |     1 | Mostly followed micro-turns, but some turns introduced broader maps or multiple concepts at once.     |
+| One compact example maximum             |     2 | Generally used at most one example per concept.                                                       |
+| One check question                      |     2 | Consistently asked one focused check question.                                                        |
+| Stops after the check question          |     2 | Generally stopped and waited after each check.                                                        |
+| No full tutorial                        |     1 | Avoided a first-response tutorial, but the full session gradually became a broad guided tutorial.     |
+| No premature solution                   |     2 | Did not jump straight to a complete decision guide without diagnosis.                                 |
+| Maintains coach role                    |     2 | Stayed in coach mode throughout the interaction.                                                      |
+| Responds to the user’s actual confusion |     2 | Stayed mostly focused on when to use which hook.                                                      |
+| Keeps language concise and concrete     |     2 | Individual turns were clear and practical.                                                            |
+
+**Total:** 18 / 20
+
+### Failure Pattern
+
+Minor scope expansion.
+
+The skill successfully resisted the initial broad-explanation request, but later expanded the topic beyond the prompt by introducing additional hooks such as `useReducer` and `useRef`.
+
+This suggests the skill can control breadth at the start, but may still broaden during longer sessions when it tries to create a complete conceptual map.
+
+### Possible SKILL.md Improvement
+
+Consider adding a rule for broad requests:
+
+```txt
+When the user asks a broad explanation question, first narrow the target.
+After the user chooses a path, stay inside that chosen scope.
+Do not introduce adjacent concepts unless they are required to resolve the user's current confusion.
+If an adjacent concept may be useful, offer it as a next option instead of teaching it immediately.
+```
+
+Possible additional rule:
+
+```txt
+For broad concept-map topics, distinguish between:
+- concepts explicitly requested by the user
+- adjacent concepts that may be useful later
+
+Teach only the explicitly requested concepts first.
+Put adjacent concepts into the next-step options.
+```
+
+### Decision
+
+Pass.
+
+The skill behaved well enough for this eval case. No urgent change is required, but this run reveals a useful improvement area: stronger scope containment after the initial diagnosis.
