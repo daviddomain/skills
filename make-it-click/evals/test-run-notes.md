@@ -233,3 +233,108 @@ Put adjacent concepts into the next-step options.
 Pass.
 
 The skill behaved well enough for this eval case. No urgent change is required, but this run reveals a useful improvement area: stronger scope containment after the initial diagnosis.
+
+---
+
+## Test Run: mic-003-misconception
+
+### Date
+
+2026-05-19
+
+### Skill Version
+
+v3.2 baseline
+
+### Codex Version / Environment
+
+Not recorded.
+
+### Eval Case ID
+
+`mic-003-misconception`
+
+### Prompt Used
+
+```txt
+I think TypeScript makes my app safe at runtime because it checks the props before React renders them. Is that right?
+```
+
+### Observed Behavior
+
+The skill handled the misconception very well.
+
+It correctly identified the core confusion as the difference between TypeScript compile-time checking and JavaScript runtime behavior. It directly corrected the misconception, but did so in a small and controlled way instead of turning the response into a full TypeScript tutorial.
+
+The interaction progressed through a clean sequence:
+
+1. TypeScript does not check React props at runtime.
+2. TypeScript types are gone by the time React runs.
+3. React receives ordinary JavaScript values.
+4. Type annotations are removed rather than compiled into runtime checks.
+5. Runtime validation must come from explicit checks or validation libraries.
+6. External data boundaries need runtime validation.
+
+The skill used short examples and repeatedly checked understanding with multiple-choice questions or teach-back prompts. The teach-back moment was especially useful because it confirmed that the user had internalized the main distinction.
+
+A strong point was the gentle refinement after the user said TypeScript is “compiled to regular JavaScript.” The skill clarified that type annotations are removed, without overcorrecting or expanding into unrelated compiler details.
+
+The final summary was compact and useful. It captured the core distinction clearly:
+
+- TypeScript checks your code before runtime.
+- React renders with plain JavaScript values.
+- Runtime safety for external data comes from explicit checks, schemas, or validation libraries.
+
+Minor issue: the first reply directly stated the correct answer before the diagnostic choice. For a misconception case, this is acceptable and probably useful, but it slightly weakens the pure “diagnosis first” rhythm. Also, the final summary ended without a final check or next-step question, though that is not a serious problem because the concept had already been confirmed.
+
+### Score Summary
+
+| Criterion                               | Score | Notes                                                                                                                                                               |
+| --------------------------------------- | ----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Diagnosis first                         |     1 | It identified the likely confusion and asked a diagnostic question, but also gave the correction before the diagnostic answer. Acceptable for a misconception case. |
+| One tiny idea per reply                 |     2 | Each turn focused on one small conceptual step.                                                                                                                     |
+| One compact example maximum             |     2 | Examples were short and directly relevant.                                                                                                                          |
+| One check question                      |     2 | Used clear checks throughout the interaction.                                                                                                                       |
+| Stops after the check question          |     2 | Generally stopped and waited after each check.                                                                                                                      |
+| No full tutorial                        |     2 | Avoided a broad TypeScript or React runtime explanation.                                                                                                            |
+| No premature solution                   |     2 | Did not jump straight to Zod, validation libraries or implementation advice.                                                                                        |
+| Maintains coach role                    |     2 | Stayed in interactive coach mode throughout.                                                                                                                        |
+| Responds to the user’s actual confusion |     2 | Stayed tightly focused on TypeScript vs runtime safety.                                                                                                             |
+| Keeps language concise and concrete     |     2 | Very clear, beginner-friendly and concrete.                                                                                                                         |
+
+**Total:** 19 / 20
+
+### Failure Pattern
+
+No major failure.
+
+Minor pattern observed:
+
+For misconception prompts, the skill may directly correct the misconception before completing diagnosis. This worked well here, but should be watched in future evals. Direct correction is useful when the user asks “Is that right?”, but it should remain small and should not become a full explanation.
+
+The final summary also did not include a final check question or next-step question. This is acceptable in this run, but the strict micro-turn rhythm would be slightly stronger if summaries ended with a compact next-step option or check.
+
+### Possible SKILL.md Improvement
+
+Consider adding a specific rule for misconception cases:
+
+```txt
+When the user states a misconception and asks whether it is right, give a brief correction first if needed.
+Keep the correction to one tiny idea.
+Then ask a diagnostic or teach-back question before adding the next concept.
+Do not expand into a full explanation just because the misconception touches a broad topic.
+```
+
+Optional summary rule:
+
+```txt
+When closing with a recap, summarize only concepts already covered.
+Do not introduce new concepts in the recap.
+End with one small next-step option or check question, unless the user clearly asked to stop.
+```
+
+### Decision
+
+Pass.
+
+The skill behaved very well for this eval case. No urgent SKILL.md change is required. The run supports keeping the current misconception-handling style, with only a possible small clarification rule for direct corrections.
