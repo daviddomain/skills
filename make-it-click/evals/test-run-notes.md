@@ -338,3 +338,127 @@ End with one small next-step option or check question, unless the user clearly a
 Pass.
 
 The skill behaved very well for this eval case. No urgent SKILL.md change is required. The run supports keeping the current misconception-handling style, with only a possible small clarification rule for direct corrections.
+
+---
+
+## Test Run: mic-004-answer-too-quickly
+
+### Date
+
+2026-05-20
+
+### Skill Version
+
+v3.2 baseline
+
+### Codex Version / Environment
+
+Not recorded.
+
+### Eval Case ID
+
+`mic-004-answer-too-quickly`
+
+### Prompt Used
+
+```txt
+Just tell me the answer: should this Next.js data fetching go in a Server Component, a Client Component, or an API route?
+```
+
+### Observed Behavior
+
+The skill produced a useful practical decision guide, but it partially failed the specific risk being tested.
+
+The user explicitly pushed for a quick answer: “Just tell me the answer.” The skill complied at the beginning by giving a direct answer-first list:
+
+1. Server Component for render-time data, especially DB/private API calls.
+2. Client Component for browser-only state or user interaction after load.
+3. API route / Route Handler for HTTP endpoints or hiding secrets behind a callable boundary.
+
+This answer was correct and concise, but it weakened the intended `make-it-click` behavior. For this eval case, the skill should ideally resist the pressure to fully answer too quickly and instead give only the smallest useful decision rule, then immediately diagnose the user’s actual situation.
+
+After the first answer, the interaction improved significantly. The skill asked diagnostic multiple-choice questions, narrowed the case step by step and helped the user build a practical model:
+
+1. If the page needs data for initial HTML, default to Server Component.
+2. If some data is interaction-driven, split initial data and interaction data.
+3. If changing data happens inside the app, prefer Server Actions for mutations.
+4. Client Components own browser interaction and local UI state.
+5. API routes are for HTTP boundaries, such as webhooks or explicit URL endpoints.
+
+The skill used concrete checks and waited for user answers. It corrected wording gently and ended with a strong compact decision rule:
+
+```txt
+Database read for first render -> Server Component
+User interaction/state -> Client Component
+Form submit that mutates DB -> Server Action
+External caller or explicit HTTP URL needed -> API route
+```
+
+The main weakness is that the first response was closer to a compact answer than to an interactive coaching turn. It introduced multiple categories before confirming the user’s actual case.
+
+### Score Summary
+
+| Criterion                               | Score | Notes                                                                                                                 |
+| --------------------------------------- | ----: | --------------------------------------------------------------------------------------------------------------------- |
+| Diagnosis first                         |     1 | Started with an answer-first list, then asked a diagnostic question. Useful, but not strict diagnosis-first behavior. |
+| One tiny idea per reply                 |     1 | The first reply introduced three categories at once. Later turns were much better.                                    |
+| One compact example maximum             |     2 | Examples and shapes were compact and relevant.                                                                        |
+| One check question                      |     2 | Used clear check questions throughout.                                                                                |
+| Stops after the check question          |     2 | Generally stopped and waited after each check.                                                                        |
+| No full tutorial                        |     2 | Did not become a full Next.js data-fetching tutorial.                                                                 |
+| No premature solution                   |     1 | The first reply gave the practical solution too early. Later it recovered well.                                       |
+| Maintains coach role                    |     2 | After the initial answer, stayed in coach mode.                                                                       |
+| Responds to the user’s actual confusion |     2 | Narrowed the case effectively and built a useful decision model.                                                      |
+| Keeps language concise and concrete     |     2 | Clear, practical and concrete throughout.                                                                             |
+
+**Total:** 17 / 20
+
+### Failure Pattern
+
+Answer-first compliance.
+
+When the user explicitly requested a quick answer, the skill partially obeyed instead of preserving strict coaching behavior. It gave a compact but multi-category answer before diagnosing the user’s concrete situation.
+
+This is an important failure pattern because it tests one of the key risks of the skill: sliding back into normal assistant behavior when the user asks for a direct answer.
+
+The skill recovered well after the first response, but the first turn should probably be more constrained.
+
+### Possible SKILL.md Improvement
+
+Consider adding a stronger rule for “just tell me the answer” prompts:
+
+```txt
+When the user asks for the answer immediately, do not dump the full answer.
+Give the smallest safe orientation rule only.
+Then ask one diagnostic question that identifies the user's concrete case.
+Stop after the question.
+```
+
+Possible wording:
+
+```txt
+If the user says "just tell me", "give me the answer", "quick answer", or similar:
+- Do not switch into normal answer mode.
+- Provide at most one compact rule of thumb.
+- Ask exactly one narrowing question.
+- Do not list multiple full options unless the user has already provided enough context to choose between them.
+```
+
+For this specific pattern, the desired first reply would have been closer to:
+
+```txt
+Default: if the data is needed for the first render and can run on the server, start with a Server Component.
+
+Check: what makes this fetch tricky?
+
+A) It depends on browser state or a click
+B) It reads private/database data for initial render
+C) It must be called by an external system over HTTP
+D) Not sure
+```
+
+### Decision
+
+Partial Pass.
+
+The skill produced a good learning interaction overall, but this eval exposed a real weakness: it can comply too quickly with answer-first pressure. This is a good candidate for a targeted `SKILL.md` refinement after the remaining eval cases are completed.
