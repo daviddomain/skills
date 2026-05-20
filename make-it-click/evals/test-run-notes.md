@@ -569,3 +569,138 @@ If a correction is useful, keep it brief and return immediately to the concept.
 Pass.
 
 The skill behaved very well for this eval case. The run confirms that `make-it-click` can handle multi-step agentic-coding concepts without collapsing into a full tutorial. The main improvement opportunity is to keep early whole-loop maps explicitly small and avoid non-essential wording corrections.
+
+---
+
+## Retest: mic-004-answer-too-quickly
+
+### Date
+
+2026-05-20
+
+### Skill Version
+
+Post-v3.2 refinement / answer-first pressure guard added
+
+### Codex Version / Environment
+
+Not recorded.
+
+### Eval Case ID
+
+`mic-004-answer-too-quickly`
+
+### Prompt Used
+
+```txt
+Just tell me the answer: should this Next.js data fetching go in a Server Component, a Client Component, or an API route?
+```
+
+### Observed Behavior
+
+The retest shows a clear improvement over the original v3.2 baseline run.
+
+The skill still gave a direct answer first, but it did so in a more constrained way:
+
+```txt
+Default answer: Server Component.
+```
+
+It then provided a compact rule of thumb and immediately asked a narrowing question about the concrete case:
+
+```txt
+Can the data be fetched before rendering the page?
+-> Server Component
+```
+
+This is much closer to the intended answer-first pressure behavior than the previous run, where the skill started with a broader three-option decision guide.
+
+After the user clarified that the fetch happens after a click/selection, the skill adapted correctly:
+
+1. Client-side interaction belongs in a Client Component.
+2. DB access must stay server-side.
+3. In App Router, Client Component + Server Action is the right pattern.
+4. The Client Component owns interaction state.
+5. The Server Action owns DB access.
+
+The strongest improvement is that the skill narrowed the situation through questions instead of continuing with a general explanation. It also reached a correct practical recommendation based on the user’s answers.
+
+However, the session later shifted from understanding-coach mode into implementation-help mode. When the user asked “Okay, and now what?” and then “the code pattern,” the skill provided a fairly large code example. This was useful and responsive, but it is less strict as a micro-turn coaching interaction.
+
+There was also a small wording correction at the end about matching quotes in `'use client'`. This was harmless and arguably relevant because it affected the code snippet, but it is still worth watching because non-essential corrections were already observed in earlier evals.
+
+### Score Summary
+
+| Criterion                               | Score | Notes                                                                                                                    |
+| --------------------------------------- | ----: | ------------------------------------------------------------------------------------------------------------------------ |
+| Diagnosis first                         |     2 | For an answer-pressure prompt, the skill gave only a small default answer and quickly narrowed the case with a question. |
+| One tiny idea per reply                 |     1 | Early turns were focused, but the later code-pattern answer introduced a larger implementation chunk.                    |
+| One compact example maximum             |     1 | The final code example was useful but larger than strict micro-turn mode.                                                |
+| One check question                      |     2 | Used focused check questions throughout most of the run.                                                                 |
+| Stops after the check question          |     2 | Generally stopped and waited after questions.                                                                            |
+| No full tutorial                        |     2 | Did not turn into a broad Next.js data-fetching tutorial.                                                                |
+| No premature solution                   |     2 | Improved significantly: narrowed the case before making the final recommendation.                                        |
+| Maintains coach role                    |     1 | Strong at first, but later shifted toward implementation assistant mode.                                                 |
+| Responds to the user’s actual confusion |     2 | Correctly adapted to click-driven fetching, DB access and App Router.                                                    |
+| Keeps language concise and concrete     |     2 | Clear and practical throughout.                                                                                          |
+
+**Total:** 17 / 20
+
+### Comparison to v3.2 Baseline
+
+The original v3.2 run was also scored **17 / 20**, but the failure profile changed.
+
+The baseline problem was:
+
+```txt
+The skill complied too quickly with "just tell me the answer" and started with a broader answer-first list.
+```
+
+The retest shows improvement here:
+
+```txt
+The skill gave a compact default answer, asked a narrowing question, and avoided a full initial decision guide.
+```
+
+The remaining issue is different:
+
+```txt
+After the initial concept was resolved, the skill shifted into implementation-help mode and provided a larger code pattern.
+```
+
+So the answer-first pressure guard helped, but the skill still needs a clearer boundary for when a user moves from understanding to implementation.
+
+### Failure Pattern
+
+Implementation-mode drift after concept clarification.
+
+Once the user asked “Okay, and now what?” and selected “the code pattern,” the skill became more like a coding assistant. This may be acceptable if the skill is allowed to support application of the concept, but it slightly weakens the strict `make-it-click` behavior.
+
+The key remaining question is whether `make-it-click` should:
+
+1. stop after the concept clicks and hand off to normal coding help, or
+2. continue into implementation patterns, but still in very small coaching steps.
+
+### Possible SKILL.md Improvement
+
+Consider adding an explicit rule for post-click implementation requests:
+
+```txt
+When the user moves from understanding the concept to asking for implementation help, do not switch into full coding-assistant mode automatically.
+First confirm whether they want to continue in micro-turn coaching mode or switch to direct implementation help.
+If staying in coaching mode, provide only the smallest next implementation step and one check question.
+```
+
+Possible shorter version:
+
+```txt
+After the concept clicks, implementation help must still follow micro-turn mode unless the user explicitly asks to leave the skill.
+```
+
+### Decision
+
+Improved Partial Pass.
+
+The targeted `SKILL.md` refinement improved the highest-priority issue: the skill now handles answer-first pressure more safely and narrows the user’s concrete case earlier.
+
+However, this retest exposes a follow-up issue: once the conceptual question turns into implementation guidance, the skill can still drift into normal coding-assistant behavior.
