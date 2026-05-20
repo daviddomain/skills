@@ -462,3 +462,110 @@ D) Not sure
 Partial Pass.
 
 The skill produced a good learning interaction overall, but this eval exposed a real weakness: it can comply too quickly with answer-first pressure. This is a good candidate for a targeted `SKILL.md` refinement after the remaining eval cases are completed.
+
+---
+
+## Test Run: mic-005-multi-step-agentic-coding
+
+### Date
+
+2026-05-20
+
+### Skill Version
+
+v3.2 baseline
+
+### Codex Version / Environment
+
+Not recorded.
+
+### Eval Case ID
+
+`mic-005-multi-step-agentic-coding`
+
+### Prompt Used
+
+```txt
+I do not understand how an agent decides between reading files, editing code, running tests, and asking the user. Can you walk me through the whole loop?
+```
+
+### Observed Behavior
+
+The skill handled the multi-step agentic-coding concept well.
+
+It correctly identified the likely confusion: the user sees reading, editing, testing and asking as separate or possibly random actions, while the better mental model is a single control loop. The first response introduced a compact map of the loop and then asked a diagnostic question to identify the user’s main confusion.
+
+After the user chose the end-to-end path, the skill kept the explanation structured and interactive:
+
+1. An agent reduces uncertainty until it can safely act.
+2. Reading files belongs mostly to inspecting context.
+3. Editing before reading is risky because the agent may change the wrong thing or violate project patterns.
+4. Files answer codebase questions; the user answers intent questions.
+5. Tests are a reality check for the agent’s prediction.
+6. The final decision depends on which type of uncertainty is currently blocking progress.
+
+The strongest part was the final reusable model:
+
+```txt
+Read when the blocker is codebase knowledge.
+Edit when the blocker is an understood code change.
+Test when the blocker is proof.
+Ask when the blocker is user intent, risk, or permission.
+```
+
+This captured the whole topic in a compact, agent-friendly way.
+
+The skill used checks throughout the conversation and waited for user responses. The classification exercise near the end was especially effective because it tested whether the user could apply the model across multiple cases.
+
+Minor weakness: because the user asked for “the whole loop,” the first response included a full loop sketch before the diagnostic answer. This was still compact and useful, but it slightly softened the strict “one tiny idea first” behavior. Also, the skill briefly corrected wording/spelling such as “confidentially” and “achiving.” That was harmless, but not central to the conceptual goal and could be distracting in a stricter learning flow.
+
+### Score Summary
+
+| Criterion                               | Score | Notes                                                                                                       |
+| --------------------------------------- | ----: | ----------------------------------------------------------------------------------------------------------- |
+| Diagnosis first                         |     2 | Started with a hypothesis and a diagnostic question.                                                        |
+| One tiny idea per reply                 |     2 | Mostly excellent. Each step focused on one part of the loop. The initial loop sketch was broad but compact. |
+| One compact example maximum             |     2 | Examples were short and directly tied to the current idea.                                                  |
+| One check question                      |     2 | Used focused check questions throughout.                                                                    |
+| Stops after the check question          |     2 | Stopped and waited after checks.                                                                            |
+| No full tutorial                        |     2 | Avoided turning the topic into a broad agentic-coding lecture.                                              |
+| No premature solution                   |     2 | Did not jump straight into a complete process framework before building the mental model.                   |
+| Maintains coach role                    |     2 | Stayed in interactive coaching mode throughout.                                                             |
+| Responds to the user’s actual confusion |     2 | Stayed tightly focused on how agents choose between read, edit, test and ask.                               |
+| Keeps language concise and concrete     |     1 | Mostly concise and concrete, but the spelling/wording corrections were slightly off-topic.                  |
+
+**Total:** 19 / 20
+
+### Failure Pattern
+
+No major failure.
+
+Minor pattern observed:
+
+For multi-step “walk me through the whole loop” prompts, the skill may provide a compact whole-loop map early. In this run that worked well, but it should stay limited to orientation only. The skill should avoid turning that map into a full process explanation before the user confirms the target path.
+
+A second minor pattern: the skill corrected language mistakes that were not important to the conceptual understanding. This was not harmful here, but it may distract from the learning objective in some contexts.
+
+### Possible SKILL.md Improvement
+
+Consider adding a rule for multi-step concept requests:
+
+```txt
+When the user asks for a whole process or loop, provide at most one compact orientation map.
+Treat the map as navigation, not as the full explanation.
+Then choose the smallest next concept and ask one check question.
+Do not explain every step of the loop in the first reply.
+```
+
+Optional rule for user wording corrections:
+
+```txt
+Do not correct grammar, spelling, or wording unless it affects the concept being taught.
+If a correction is useful, keep it brief and return immediately to the concept.
+```
+
+### Decision
+
+Pass.
+
+The skill behaved very well for this eval case. The run confirms that `make-it-click` can handle multi-step agentic-coding concepts without collapsing into a full tutorial. The main improvement opportunity is to keep early whole-loop maps explicitly small and avoid non-essential wording corrections.
