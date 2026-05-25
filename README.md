@@ -6,6 +6,7 @@ This repository contains custom skills for Codex and other AI coding agents. A s
 
 | Skill                        | Purpose                                                                                                                                                                                                               | When to use it                                                                                                                                                                                                           |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `context-relay`              | Compresses a long existing conversation into a clean, portable handoff prompt for starting a new chat with the essential context preserved.                                                                            | Use it when a large chat should be continued in a fresh thread without carrying forward the full transcript.                                                                                                             |
 | `design-agent-task-with-acd` | Turns a rough idea, feature request, bugfix, or refactoring goal into a precise, implementation-ready agent task. It uses the **Actions / Computations / Data (ACD)** model and resolves open decisions step by step. | Use it when a vague requirement should become a clear Codex task, GitHub issue, or implementation brief. It is not meant for direct implementation unless the user explicitly asks for that after the task is finalized. |
 | `make-it-click`              | Helps users truly understand a topic by finding knowledge gaps, building a mental model, using examples, and checking understanding through teach-back.                                                               | Use it when a concept is unclear, hard to picture, or when the user wants an interactive explanation instead of a long lecture.                                                                                          |
 
@@ -20,6 +21,7 @@ npx skills@latest add daviddomain/<skill-name>
 Replace `<skill-name>` with the skill you want to install:
 
 ```bash
+npx skills@latest add daviddomain/context-relay
 npx skills@latest add daviddomain/design-agent-task-with-acd
 npx skills@latest add daviddomain/make-it-click
 ```
@@ -34,6 +36,10 @@ Examples:
 
 ```text
 Use the design-agent-task-with-acd skill and turn this feature idea into a Codex task: ...
+```
+
+```text
+Use context-relay to turn this long thread into a first prompt for a fresh chat.
 ```
 
 ```text
